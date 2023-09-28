@@ -19,7 +19,7 @@
 '''
 
 # Team ID:          [ Team-ID ]
-# Author List:		[ Names of team members worked on this file separated by Comma: Name1, Name2, ... ]
+# Author List:		Prakhar Gupta, Atharv Nagar, Bhavesh Jain, Divyam Tiwari
 # Filename:		    task1a.py
 # Functions:
 #			        [ Comma separated list of functions in this file ]
