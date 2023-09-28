@@ -64,16 +64,13 @@ def calculate_rectangle_area(coordinates):
 
     area = None
     width = None
+    
+    #My code
+    coords = np.array(coordinates)
+    v1,v2,v3,v4 = coords[1]-coords[0], coords[2]-coords[1], coords[3]-coords[2], coords[0]-coords[3]
 
-    ############ ADD YOUR CODE HERE ############
-
-    # INSTRUCTIONS & HELP : 
-    #	->  Recevice coordiantes from 'detectMarkers' using cv2.aruco library 
-    #       and use these coordinates to calculate area and width of aruco detected.
-    #	->  Extract values from input set of 4 (x,y) coordinates 
-    #       and formulate width and height of aruco detected to return 'area' and 'width'.
-
-    ############################################
+    area = np.abs(0.5 * np.cross(v1, v2) + 0.5 * np.cross(v3, v4))
+    width = np.sqrt(area)
 
     return area, width
 
