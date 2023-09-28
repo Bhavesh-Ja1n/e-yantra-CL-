@@ -18,7 +18,7 @@
 *****************************************************************************************
 '''
 
-# Team ID:          [ Team-ID ]
+# Team ID:          eYRC#CL#3625
 # Author List:		Prakhar Gupta, Atharv Nagar, Bhavesh Jain, Divyam Tiwari
 # Filename:		    task1a.py
 # Functions:
@@ -64,7 +64,7 @@ def calculate_rectangle_area(coordinates):
 
     area = None
     width = None
-    
+
     #My code
     coords = np.array(coordinates)
     v1,v2,v3,v4 = coords[1]-coords[0], coords[2]-coords[1], coords[3]-coords[2], coords[0]-coords[3]
@@ -196,14 +196,21 @@ class aruco_tf(Node):
         '''
 
         ############ ADD YOUR CODE HERE ############
-
-        # INSTRUCTIONS & HELP : 
-
-        #	->  Use data variable to convert ROS Image message to CV2 Image type
-
-        #   ->  HINT: You may use CvBridge to do the same
+        
+        #DONE
 
         ############################################
+
+        try:
+            depth_img = self.bridge.imgmsg_to_cv2(data, dtype=np.float64)
+        except CvBridgeError as e:
+            print(e)
+
+        depth_array = np.array(depth_img)
+
+        return depth_array
+
+
 
 
     def colorimagecb(self, data):
@@ -219,15 +226,17 @@ class aruco_tf(Node):
 
         ############ ADD YOUR CODE HERE ############
 
-        # INSTRUCTIONS & HELP : 
-
-        #	->  Use data variable to convert ROS Image message to CV2 Image type
-
-        #   ->  HINT:   You may use CvBridge to do the same
-        #               Check if you need any rotation or flipping image as input data maybe different than what you expect to be.
-        #               You may use cv2 functions such as 'flip' and 'rotate' to do the same
+        #DONE
 
         ############################################
+        try:
+            color_img = self.bridge.imgmsg_to_cv2(data, dtype=np.float64)
+        except CvBridgeError as e:
+            print(e)
+
+        color_img = np.array(color_img)
+
+        return color_img
 
 
     def process_image(self):
