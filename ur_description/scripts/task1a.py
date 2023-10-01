@@ -97,7 +97,7 @@ def detect_aruco(image):
 
     # Use this variable as a threshold value to detect aruco markers of certain size.
     # Ex: avoid markers/boxes placed far away from arm's reach position  
-    aruco_area_threshold = 1500
+    area_threshold = 1500
 
     # The camera matrix is defined as per camera info loaded from the plugin used. 
     # You may get this from /camer_info topic when camera is spawned in gazebo.
@@ -116,35 +116,58 @@ def detect_aruco(image):
     distance_from_rgb_list = []
     angle_aruco_list = []
     width_aruco_list = []
-    ids = []
+    marker_id_list = []
+    corners_aruco_list = []
  
     ############ ADD YOUR CODE HERE ############
 
     # INSTRUCTIONS & HELP : 
 
     #	->  Convert input BGR image to GRAYSCALE for aruco detection
+    image_grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    image_cpy = image.copy()
 
     #   ->  Use these aruco parameters-
     #       ->  Dictionary: 4x4_50 (4x4 only until 50 aruco IDs)
+    aruco_dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4x4_50)
 
     #   ->  Detect aruco marker in the image and store 'corners' and 'ids'
     #       ->  HINT: Handle cases for empty markers detection. 
+    markerCorners, markerIds, rejectedCandidates = cv2.aruco.detectMarkers(image_grey, aruco_dictionary)
 
     #   ->  Draw detected marker on the image frame which will be shown later
+    cv2.aruco.drawDetectedMarkers(image_cpy, markerCorners, markerIds)
 
     #   ->  Loop over each marker ID detected in frame and calculate area using function defined above (calculate_rectangle_area(coordinates))
-
     #   ->  Remove tags which are far away from arm's reach positon based on some threshold defined
+    for i,I in enumerate(markerCorners):
+        coords = I[0]   #I[0] is just syntax soup for greyscale images. it makes much more sense to think about it in an RGB way. I[0] means red, I[1] green and I[2] blue etc etc. But this isnt an RGB image so here its just I[0] means black and white.
+        area, width = calculate_rectangle_area(coords)
+        if area > area_threshold:
+            center = np.zeros(2)
+            for J in I[0]:
+                center += J
+            center /= 4
+            center_aruco_list.append(center)
+            width_aruco_list.append(width)
+            marker_id_list.append(markerIds[i])
+            corners_aruco_list.append(I)
 
     #   ->  Calculate center points aruco list using math and distance from RGB camera using pose estimation of aruco marker
     #       ->  HINT: You may use numpy for center points and 'estimatePoseSingleMarkers' from cv2 aruco library for pose estimation
-
+    rvecs, tvecs, obj_points = cv2.aruco.estimatePoseSingleMarkers(corners_aruco_list, size_of_aruco_m, cam_mat, dist_mat)
+    
     #   ->  Draw frame axes from coordinates received using pose estimation
-    #       ->  HINT: You may use 'cv2.drawFrameAxes'
+    #       ->  HINT: You may use 'cv2.drawFrameAxes
+    for i,I in enumerate(marker_id_list):
+        try:
+            cv2.drawFrameAxes(image_cpy, cam_mat, dist_mat, rvecs[i], tvecs[i], 1, 1)
+        except Exception as e:
+            print(e)    
 
     ############################################
 
-    return center_aruco_list, distance_from_rgb_list, angle_aruco_list, width_aruco_list, ids
+    return center_aruco_list, distance_from_rgb_list, angle_aruco_list, width_aruco_list, marker_id_list
 
 
 ##################### CLASS DEFINITION #######################
@@ -179,7 +202,7 @@ class aruco_tf(Node):
         self.listener = tf2_ros.TransformListener(self.tf_buffer, self)
         self.br = tf2_ros.TransformBroadcaster(self)                                    # object as transform broadcaster to send transform wrt some frame_id
         self.timer = self.create_timer(image_processing_rate, self.process_image)       # creating a timer based function which gets called on every 0.2 seconds (as defined by 'image_processing_rate' variable)
-        
+
         self.cv_image = None                                                            # colour raw image variable (from colorimagecb())
         self.depth_image = None                                                         # depth image variable (from depthimagecb())
 
@@ -234,7 +257,7 @@ class aruco_tf(Node):
         except CvBridgeError as e:
             print(e)
 
-        color_img = np.array(color_img)
+        self.color_img = np.array(color_img)
 
         return color_img
 
@@ -266,6 +289,7 @@ class aruco_tf(Node):
         # INSTRUCTIONS & HELP : 
 
         #	->  Get aruco center, distance from rgb, angle, width and ids list from 'detect_aruco_center' defined above
+        centers, distances, angles, widths, ids = detect_aruco()
 
         #   ->  Loop over detected box ids received to calculate position and orientation transform to publish TF 
 
