@@ -140,7 +140,7 @@ def detect_aruco(image):
 
     #   ->  Loop over each marker ID detected in frame and calculate area using function defined above (calculate_rectangle_area(coordinates))
     #   ->  Remove tags which are far away from arm's reach positon based on some threshold defined
-    for i,I in enumerate(markerCorners):
+    for i,I in enumerate(markerCorners):  ####marda
         coords = I[0]   #I[0] is just syntax soup for greyscale images. it makes much more sense to think about it in an RGB way. I[0] means red, I[1] green and I[2] blue etc etc. But this isnt an RGB image so here its just I[0] means black and white.
         area, width = calculate_rectangle_area(coords)
         if area > area_threshold:
