@@ -161,6 +161,8 @@ def detect_aruco(image):
     #       ->  HINT: You may use 'cv2.drawFrameAxes
     for i,I in enumerate(marker_id_list):
         try:
+            disp = np.linalg.norm(tvecs[i][0])
+            distance_from_rgb_list.append(val)
             cv2.drawFrameAxes(image_cpy, cam_mat, dist_mat, rvecs[i], tvecs[i], 1, 1)
         except Exception as e:
             print(e)    
